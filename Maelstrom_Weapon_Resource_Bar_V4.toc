@@ -1,0 +1,52 @@
+## Interface: 120000, 120001, 120005, 120007, 120100
+## Title: Maelstrom Weapon Resource Bar |cff00ccffV4|r
+## Notes: Enhanced MSW tracker with AceGUI options (Standalone V4)
+## Author: Arc
+## Version: 4.0.9
+## X-Curse-Project-ID: 1383247
+## SavedVariables: Maelstrom_Weapon_Resource_Bar_V4DB
+## OptionalDeps: Ace3
+
+# Libraries (Ace3) - ORDER MATTERS!
+Libs\LibStub\LibStub.lua
+Libs\CallbackHandler-1.0\CallbackHandler-1.0.lua
+Libs\AceAddon-3.0\AceAddon-3.0.lua
+Libs\AceDB-3.0\AceDB-3.0.lua
+Libs\AceDBOptions-3.0\AceDBOptions-3.0.lua
+Libs\AceEvent-3.0\AceEvent-3.0.lua
+Libs\AceConsole-3.0\AceConsole-3.0.lua
+Libs\AceGUI-3.0\AceGUI-3.0.xml
+Libs\LibSharedMedia-3.0\LibSharedMedia-3.0.lua
+Libs\AceGUI-3.0-SharedMediaWidgets\widget.xml
+Libs\AceConfig-3.0\AceConfigRegistry-3.0\AceConfigRegistry-3.0.lua
+Libs\AceConfig-3.0\AceConfigCmd-3.0\AceConfigCmd-3.0.lua
+Libs\AceConfig-3.0\AceConfigDialog-3.0\AceConfigDialog-3.0.lua
+Libs\AceConfig-3.0\AceConfig-3.0.lua
+Libs\LibDataBroker-1.1\LibDataBroker-1.1.lua
+Libs\LibDBIcon-1.0\LibDBIcon-1.0.lua
+Libs\LibDeflate\LibDeflate.lua
+
+# Core
+MWRB_Core.lua
+MWRB_Tracker.lua
+
+# Options Utils (MUST load before Display files!)
+MWRB_Options_Utils.lua
+
+# Display
+MWRB_Display.lua
+MWRB_LayoutEditor.lua
+MWRB_ImportExport.lua
+MWRB_RealMSWDisplay.lua
+
+# Options
+MWRB_Options_Core.lua
+MWRB_Options_Main.lua
+MWRB_Options_Visual.lua
+MWRB_Options_Conditionals.lua
+MWRB_Options_RealMSW.lua
+MWRB_Options_RealMSWAppearance.lua
+MWRB_Options_Profile.lua
+MWRB_Options_Debug.lua
+MWRB_Options_Minimap.lua
+

@@ -73,6 +73,14 @@ local iconSlots = {}
 -- Current MSW count
 local currentMSW = 0
 
+-- Panel-open probe: while the MWRB options window is open, hide-out-of-
+-- combat is BYPASSED so the user can see what they are configuring
+-- (re-evaluated from OpenOptions and the panel close hooks).
+function ns.API.IsOptionsPanelOpen()
+  local acd = LibStub and LibStub("AceConfigDialog-3.0", true)
+  return (acd and acd.OpenFrames and acd.OpenFrames["MWRB"]) ~= nil
+end
+
 -- ===================================================================
 -- SECTION 01.5 - Color Safety Helpers
 -- ===================================================================
@@ -290,6 +298,20 @@ local function layoutFiveIcons()
     end
   end
   
+
+  -- HITBOX = CONTENT: the frame is what you click to drag, but the icons
+  -- hang off its LEFT edge -- with larger sizes/spacing they extended past
+  -- the fixed 350x64 rect and clicks on them hit nothing ("sometimes I
+  -- can't drag the bar even unlocked"). Size the frame to the icon span.
+  do
+    local totalW, maxH = 0, 1
+    for i = 1, 5 do
+      local w, h = iconSlots[i]:GetSize()
+      totalW = totalW + w + (i > 1 and spacing or 0)
+      if h > maxH then maxH = h end
+    end
+    BarFrame:SetSize(math.max(totalW, 1), maxH)
+  end
   -- Hide slots 6-10 in 5 icons mode
   for i = 6, 10 do
     iconSlots[i]:Hide()
@@ -373,6 +395,17 @@ local function layoutTenSpaces()
     else
       slot:SetPoint("LEFT", iconSlots[i-1], "RIGHT", spacing, 0)
     end
+  end
+
+  -- HITBOX = CONTENT (see layoutFiveIcons)
+  do
+    local totalW, maxH = 0, 1
+    for i = 1, 10 do
+      local w, h = iconSlots[i]:GetSize()
+      totalW = totalW + w + (i > 1 and spacing or 0)
+      if h > maxH then maxH = h end
+    end
+    BarFrame:SetSize(math.max(totalW, 1), maxH)
   end
 end
 
@@ -640,7 +673,9 @@ local function layoutBarMode()
   
   -- Show status bar only if not force hidden
   local db2 = ns.API.GetDB()
-  if not db2.forceHide and ns.API.ShouldShowUI() then
+  local inCombat2 = UnitAffectingCombat("player") or InCombatLockdown() or false
+  if not db2.forceHide and ns.API.ShouldShowUI()
+     and not (db2.hideOutOfCombat and not inCombat2 and not ns.API.IsOptionsPanelOpen()) then
     StatusBar:Show()
   else
     StatusBar:Hide()
@@ -716,7 +751,11 @@ local function applyLayout()
   end
   
   -- Check if we should hide everything due to forceHide or spec/talent
+  -- (hide-out-of-combat was missing here = the login "empty icons" bug:
+  -- this ran after updateCombatVisibility and re-showed the hidden frames)
+  local inCombatNow = UnitAffectingCombat("player") or InCombatLockdown() or false
   local shouldHide = db.forceHide or not ns.API.ShouldShowUI()
+    or (db.hideOutOfCombat and not inCombatNow and not ns.API.IsOptionsPanelOpen())
   
   if mode == "bar" then
     layoutBarMode()
@@ -1353,23 +1392,16 @@ function ns.API.OnMSWChanged(count)
   -- Store the overlay event MSW count for threshold checks
   ns.overlayMSWCount = count or 0
   
-  -- Check force hide first - don't update display if force hidden
-  if db.forceHide then
-    return
-  end
-  
-  -- Check hide out of combat setting
-  if db.hideOutOfCombat then
-    local inCombat = UnitAffectingCombat("player") or InCombatLockdown() or false
-    if not inCombat then
-      return
-    end
-  end
-  
   if db.previewMode then
     -- In preview mode, ignore tracker updates
     return
   end
+  -- ALWAYS record and redraw, even while hidden (force hide / out of
+  -- combat). The old early-returns DROPPED the update entirely, so a buff
+  -- expiring while hidden left the display wearing the stale stack count
+  -- when it reappeared ("bar still shows 3 stacks after MSW dropped out
+  -- of combat"). Drawing on hidden frames is free; visibility stays owned
+  -- by ShowDisplay / updateCombatVisibility.
   currentMSW = count or 0
   drawIcons(currentMSW)
   UpdateAllGlows(currentMSW)
@@ -1447,8 +1479,8 @@ function ns.API.ShowDisplay()
     return
   end
   
-  -- Check hide out of combat setting
-  if db.hideOutOfCombat then
+  -- Check hide out of combat setting (options panel open bypasses)
+  if db.hideOutOfCombat and not ns.API.IsOptionsPanelOpen() then
     local inCombat = UnitAffectingCombat("player") or InCombatLockdown() or false
     if not inCombat then
       BarFrame:Hide()
@@ -1474,13 +1506,10 @@ function ns.API.ShowDisplay()
     return
   end
   
-  if db.displayMode == "bar" then
-    StatusBar:Show()
-    BarFrame:Hide()
-  else
-    BarFrame:Show()
-    StatusBar:Hide()
-  end
+  -- Route through the layout authority (see updateCombatVisibility): raw
+  -- Show() on BarFrame leaves individually-hidden icon slots invisible.
+  applyLayout()
+  drawIcons(currentMSW)
   
   -- Show stack text if enabled (but NOT if using Real MSW text)
   if db.showStackText and not (db.realMSWBar and db.realMSWBar.showText) then
@@ -1718,8 +1747,8 @@ local function updateCombatVisibility()
           "| Final inCombat:", inCombat)
   end
   
-  if db.hideOutOfCombat and not inCombat then
-    -- Hide when out of combat if setting is enabled
+  if db.hideOutOfCombat and not inCombat and not ns.API.IsOptionsPanelOpen() then
+    -- Hide when out of combat if setting is enabled (options panel open bypasses)
     if db.debug or db.debugOverlay then
       print("|cff00ccffMWRB|r[COMBAT] Hiding display (out of combat)")
     end
@@ -1753,18 +1782,15 @@ local function updateCombatVisibility()
         ns.RealMSW.Enable()
       end
     else
-      -- Predictive modes - show appropriate frames
-      if db.displayMode == "bar" then
-        BarFrame:Hide()  -- Hide icon frame in bar mode
-        if StatusBar then
-          StatusBar:Show()
-        end
-      else
-        BarFrame:Show()  -- Show icon frame in icon modes
-        if StatusBar then
-          StatusBar:Hide()  -- Hide status bar in icon modes
-        end
-      end
+      -- Predictive modes: run the LAYOUT AUTHORITY instead of raw Show calls.
+      -- applyLayout hides each icon SLOT individually when hiding, and an
+      -- explicitly hidden child stays hidden through a parent Show() -- so
+      -- showing only BarFrame here left every slot invisible after a
+      -- hide-while-out-of-combat pass ("entered combat, only the text
+      -- showed"). applyLayout recomputes visibility for the frame AND the
+      -- slots consistently; repaint the fills after.
+      applyLayout()
+      drawIcons(currentMSW)
       
       -- Hide predictive stack text (Real MSW text is used instead)
       StackTextFrame:Hide()

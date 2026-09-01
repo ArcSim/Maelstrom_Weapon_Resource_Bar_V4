@@ -128,6 +128,11 @@ function ns.API.OpenOptions()
 
   AceConfigDialog:Open("MWRB")
 
+  -- Panel-open preview: hide-out-of-combat is bypassed while the panel is
+  -- open -- re-evaluate now so the display appears immediately.
+  if ns.API.UpdateCombatVisibility then ns.API.UpdateCombatVisibility() end
+  if ns.API.RefreshDisplay then ns.API.RefreshDisplay() end
+
   -- Stretch drag area + save pos on hide (runs once per frame object)
   C_Timer.After(0.05, function()
     local widget = AceConfigDialog.OpenFrames and AceConfigDialog.OpenFrames["MWRB"]
@@ -162,6 +167,15 @@ function ns.API.OpenOptions()
             globalDB.mwrbPanelSize = { width = status.width, height = status.height }
           end
         end
+        -- The X button closes the standalone window WITHOUT going through
+        -- AceConfigDialog:Close, so the Close hook never fires on it -- the
+        -- hide-out-of-combat bypass stayed stuck on ("icons stayed visible
+        -- after closing the panel"). Re-evaluate here, deferred a tick so
+        -- OpenFrames has been cleared before the probe reads it.
+        C_Timer.After(0.05, function()
+          if ns.API.UpdateCombatVisibility then ns.API.UpdateCombatVisibility() end
+          if ns.API.RefreshDisplay then ns.API.RefreshDisplay() end
+        end)
       end)
     end
   end)
@@ -183,7 +197,11 @@ local function ExitPreviewMode()
   if ns.API.ExitPreviewMode then
     ns.API.ExitPreviewMode()
   end
-  
+
+  -- Panel closed: the hide-out-of-combat bypass ends -- re-evaluate so the
+  -- display hides again when appropriate.
+  if ns.API.UpdateCombatVisibility then ns.API.UpdateCombatVisibility() end
+
   C_Timer.After(0.05, function()
     if db then
       db.previewMode = false

@@ -2,7 +2,7 @@
 ## Title: Maelstrom Weapon Resource Bar |cff00ccffV4|r
 ## Notes: Enhanced MSW tracker with AceGUI options (Standalone V4)
 ## Author: Arc
-## Version: 4.0.9
+## Version: 4.0.10
 ## X-Curse-Project-ID: 1383247
 ## SavedVariables: Maelstrom_Weapon_Resource_Bar_V4DB
 ## OptionalDeps: Ace3

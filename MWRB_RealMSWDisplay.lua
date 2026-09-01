@@ -593,6 +593,10 @@ local function CreateTextFrame()
   text:SetShadowColor(0, 0, 0, 1)
   
   textFrame.text = text
+  -- HITBOX = the rendered number, not a fixed 100x50 box: the old oversized
+  -- invisible frame sat ABOVE the bar and ate every click near it ("I can
+  -- move the number but not the bar").
+  if ns.RealMSW and ns.RealMSW.ResizeTextHitbox then ns.RealMSW.ResizeTextHitbox() end
   
   -- Make movable
   textFrame:SetMovable(true)
@@ -1733,8 +1737,9 @@ local function UpdateDisplay()
     return
   end
   
-  -- Check hide out of combat setting
-  if db.hideOutOfCombat then
+  -- Check hide out of combat setting (options panel open bypasses so the
+  -- user can see what they are configuring)
+  if db.hideOutOfCombat and not (ns.API.IsOptionsPanelOpen and ns.API.IsOptionsPanelOpen()) then
     local inCombat = UnitAffectingCombat("player") or InCombatLockdown() or false
     if not inCombat then
       barFrame:Hide()
@@ -1854,6 +1859,7 @@ local function UpdateDisplay()
   if db.realMSWBar and db.realMSWBar.showText then
     textFrame:Show()
     textFrame.text:SetText(stackValue)
+    if ns.RealMSW.ResizeTextHitbox then ns.RealMSW.ResizeTextHitbox() end
   else
     textFrame:Hide()
   end
@@ -2129,6 +2135,15 @@ function ns.RealMSW.Refresh(forceRecreate)
   UpdateDisplay()
 end
 
+-- Shrink the text frame's clickable area to the rendered number (plus a
+-- small grab margin). Called at create time and on every text change.
+function ns.RealMSW.ResizeTextHitbox()
+  if not (textFrame and textFrame.text) then return end
+  local w = textFrame.text:GetStringWidth() or 0
+  local h = textFrame.text:GetStringHeight() or 0
+  textFrame:SetSize(math.max(w + 12, 26), math.max(h + 8, 20))
+end
+
 function ns.RealMSW.UpdateMovability(barMovable, textMovable)
   local db = ns.API.GetDB()
   if db and db.realMSWBar then
@@ -2138,6 +2153,15 @@ function ns.RealMSW.UpdateMovability(barMovable, textMovable)
     if textMovable ~= nil then
       db.realMSWBar.textMovable = textMovable
     end
+  end
+  -- LOCKED frames must not eat clicks: mouse follows the movable flags (the
+  -- drag handlers already check them, but a locked mouse-enabled frame still
+  -- swallowed clicks meant for whatever sat under it).
+  local cfg = db and db.realMSWBar or {}
+  if barFrame then barFrame:EnableMouse(cfg.barMovable ~= false) end
+  if textFrame then textFrame:EnableMouse(cfg.textMovable ~= false) end
+  if foldedContainerFrame then
+    foldedContainerFrame:EnableMouse(cfg.foldedBottomMovable ~= false)
   end
 end
 

@@ -1,8 +1,8 @@
-## Interface: 120000, 120001, 120005, 120007, 120100
+## Interface: 120000, 120001, 120005, 120007, 120100, 120105
 ## Title: Maelstrom Weapon Resource Bar |cff00ccffV4|r
 ## Notes: Enhanced MSW tracker with AceGUI options (Standalone V4)
 ## Author: Arc
-## Version: 4.0.10
+## Version: 4.0.11
 ## X-Curse-Project-ID: 1383247
 ## SavedVariables: Maelstrom_Weapon_Resource_Bar_V4DB
 ## OptionalDeps: Ace3

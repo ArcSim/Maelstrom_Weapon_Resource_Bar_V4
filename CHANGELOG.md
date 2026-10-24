@@ -1,3 +1,7 @@
+## 4.0.11
+
+- **Updated for patch 12.1.5** - the addon no longer shows as out of date.
+
 ## 4.0.10
 
 - **Options panel always shows the display** - With "Hide Out of Combat" enabled, the display now stays visible while the options window is open, so you can see what you are configuring. It hides again when you close the panel.

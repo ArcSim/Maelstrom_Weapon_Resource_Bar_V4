@@ -1,3 +1,7 @@
+## 4.0.12
+
+- **Texture error fixed** - Fixed a load error about an invalid border file that some players saw with other addons installed. The Blizzard border and background choices that were missing after that error are back in the dropdowns.
+
 ## 4.0.11
 
 - **Updated for patch 12.1.5** - the addon no longer shows as out of date.

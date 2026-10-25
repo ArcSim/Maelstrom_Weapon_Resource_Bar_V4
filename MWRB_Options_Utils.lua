@@ -30,15 +30,22 @@ else
   local TEXTURE_BASE = "Interface\\AddOns\\Maelstrom_Weapon_Resource_Bar_V4\\Textures\\"
   
   -- Register custom textures on load
+  -- Newer LibSharedMedia errors on paths the client does not ship, which aborts every later registration
+  local function RegisterGameFile(mediaType, name, path)
+    if GetFileIDFromPath(path) then
+      LSM:Register(mediaType, name, path)
+    end
+  end
+
   local function RegisterCustomTextures()
     -- ===================================================================
     -- BLIZZARD STATUSBAR TEXTURES
     -- ===================================================================
     
     -- Core Blizzard UI bars (always work)
-    LSM:Register(LSM.MediaType.STATUSBAR, "Blizzard", [[Interface\TargetingFrame\UI-StatusBar]])
-    LSM:Register(LSM.MediaType.STATUSBAR, "Blizzard Raid Bar", [[Interface\RaidFrame\Raid-Bar-Hp-Fill]])
-    LSM:Register(LSM.MediaType.STATUSBAR, "Blizzard Character Skills", [[Interface\PaperDollInfoFrame\UI-Character-Skills-Bar]])
+    RegisterGameFile(LSM.MediaType.STATUSBAR, "Blizzard", [[Interface\TargetingFrame\UI-StatusBar]])
+    RegisterGameFile(LSM.MediaType.STATUSBAR, "Blizzard Raid Bar", [[Interface\RaidFrame\Raid-Bar-Hp-Fill]])
+    RegisterGameFile(LSM.MediaType.STATUSBAR, "Blizzard Character Skills", [[Interface\PaperDollInfoFrame\UI-Character-Skills-Bar]])
     
     -- ===================================================================
     -- SHAMAN MAELSTROM TEXTURES
@@ -121,52 +128,51 @@ else
     -- ===================================================================
     
     -- Tooltip borders (most commonly used - these work great!)
-    LSM:Register(LSM.MediaType.BORDER, "Blizzard Tooltip", [[Interface\Tooltips\UI-Tooltip-Border]])
-    LSM:Register(LSM.MediaType.BORDER, "Blizzard Tooltip (Thick)", [[Interface\Tooltips\UI-Tooltip-Border-Thick]])
+    RegisterGameFile(LSM.MediaType.BORDER, "Blizzard Tooltip", [[Interface\Tooltips\UI-Tooltip-Border]])
     
     -- Dialog and frame borders
-    LSM:Register(LSM.MediaType.BORDER, "Blizzard Dialog", [[Interface\DialogFrame\UI-DialogBox-Border]])
-    LSM:Register(LSM.MediaType.BORDER, "Blizzard Dialog Gold", [[Interface\DialogFrame\UI-DialogBox-Gold-Border]])
+    RegisterGameFile(LSM.MediaType.BORDER, "Blizzard Dialog", [[Interface\DialogFrame\UI-DialogBox-Border]])
+    RegisterGameFile(LSM.MediaType.BORDER, "Blizzard Dialog Gold", [[Interface\DialogFrame\UI-DialogBox-Gold-Border]])
     
     -- Button borders (clean square borders)
-    LSM:Register(LSM.MediaType.BORDER, "Blizzard Button", [[Interface\BUTTONS\UI-Panel-Button-Up]])
-    LSM:Register(LSM.MediaType.BORDER, "Blizzard Button Highlight", [[Interface\BUTTONS\UI-Panel-Button-Highlight]])
+    RegisterGameFile(LSM.MediaType.BORDER, "Blizzard Button", [[Interface\BUTTONS\UI-Panel-Button-Up]])
+    RegisterGameFile(LSM.MediaType.BORDER, "Blizzard Button Highlight", [[Interface\BUTTONS\UI-Panel-Button-Highlight]])
     
     -- Achievement borders (ornate frames)
-    LSM:Register(LSM.MediaType.BORDER, "Blizzard Achievement Wood", [[Interface\AchievementFrame\UI-Achievement-WoodBorder]])
-    LSM:Register(LSM.MediaType.BORDER, "Blizzard Achievement Icon", [[Interface\AchievementFrame\UI-Achievement-IconFrame]])
+    RegisterGameFile(LSM.MediaType.BORDER, "Blizzard Achievement Wood", [[Interface\AchievementFrame\UI-Achievement-WoodBorder]])
+    RegisterGameFile(LSM.MediaType.BORDER, "Blizzard Achievement Icon", [[Interface\AchievementFrame\UI-Achievement-IconFrame]])
     
     -- Chat and nameplate borders
-    LSM:Register(LSM.MediaType.BORDER, "Blizzard Chat Bubble", [[Interface\Tooltips\ChatBubble-Backdrop]])
-    LSM:Register(LSM.MediaType.BORDER, "Blizzard Nameplate", [[Interface\Tooltips\Nameplate-Border]])
+    RegisterGameFile(LSM.MediaType.BORDER, "Blizzard Chat Bubble", [[Interface\Tooltips\ChatBubble-Backdrop]])
+    RegisterGameFile(LSM.MediaType.BORDER, "Blizzard Nameplate", [[Interface\Tooltips\Nameplate-Border]])
     
     -- Common UI borders
-    LSM:Register(LSM.MediaType.BORDER, "Blizzard White Icon Frame", [[Interface\Common\WhiteIconFrame]])
+    RegisterGameFile(LSM.MediaType.BORDER, "Blizzard White Icon Frame", [[Interface\Common\WhiteIconFrame]])
     
     -- ===================================================================
     -- BLIZZARD BACKGROUND TEXTURES
     -- ===================================================================
     
     -- Solid backgrounds
-    LSM:Register(LSM.MediaType.BACKGROUND, "Blizzard Solid", [[Interface\Buttons\WHITE8X8]])
-    LSM:Register(LSM.MediaType.BACKGROUND, "Blizzard Black", [[Interface\DialogFrame\UI-DialogBox-Background-Dark]])
+    RegisterGameFile(LSM.MediaType.BACKGROUND, "Blizzard Solid", [[Interface\Buttons\WHITE8X8]])
+    RegisterGameFile(LSM.MediaType.BACKGROUND, "Blizzard Black", [[Interface\DialogFrame\UI-DialogBox-Background-Dark]])
     
     -- Dialog backgrounds
-    LSM:Register(LSM.MediaType.BACKGROUND, "Blizzard Dialog Background", [[Interface\DialogFrame\UI-DialogBox-Background]])
-    LSM:Register(LSM.MediaType.BACKGROUND, "Blizzard Dialog Gold", [[Interface\DialogFrame\UI-DialogBox-Gold-Background]])
+    RegisterGameFile(LSM.MediaType.BACKGROUND, "Blizzard Dialog Background", [[Interface\DialogFrame\UI-DialogBox-Background]])
+    RegisterGameFile(LSM.MediaType.BACKGROUND, "Blizzard Dialog Gold", [[Interface\DialogFrame\UI-DialogBox-Gold-Background]])
     
     -- Tooltip backgrounds
-    LSM:Register(LSM.MediaType.BACKGROUND, "Blizzard Tooltip", [[Interface\Tooltips\UI-Tooltip-Background]])
+    RegisterGameFile(LSM.MediaType.BACKGROUND, "Blizzard Tooltip", [[Interface\Tooltips\UI-Tooltip-Background]])
     
     -- Textured backgrounds
-    LSM:Register(LSM.MediaType.BACKGROUND, "Blizzard Marble", [[Interface\FrameGeneral\UI-Background-Marble]])
-    LSM:Register(LSM.MediaType.BACKGROUND, "Blizzard Rock", [[Interface\FrameGeneral\UI-Background-Rock]])
-    LSM:Register(LSM.MediaType.BACKGROUND, "Blizzard Tabard", [[Interface\TabardFrame\TabardFrameBackground]])
-    LSM:Register(LSM.MediaType.BACKGROUND, "Blizzard Parchment", [[Interface\AchievementFrame\UI-Achievement-Parchment-Horizontal]])
-    LSM:Register(LSM.MediaType.BACKGROUND, "Blizzard Achievement Parchment", [[Interface\AchievementFrame\UI-Achievement-Parchment]])
+    RegisterGameFile(LSM.MediaType.BACKGROUND, "Blizzard Marble", [[Interface\FrameGeneral\UI-Background-Marble]])
+    RegisterGameFile(LSM.MediaType.BACKGROUND, "Blizzard Rock", [[Interface\FrameGeneral\UI-Background-Rock]])
+    RegisterGameFile(LSM.MediaType.BACKGROUND, "Blizzard Tabard", [[Interface\TabardFrame\TabardFrameBackground]])
+    RegisterGameFile(LSM.MediaType.BACKGROUND, "Blizzard Parchment", [[Interface\AchievementFrame\UI-Achievement-Parchment-Horizontal]])
+    RegisterGameFile(LSM.MediaType.BACKGROUND, "Blizzard Achievement Parchment", [[Interface\AchievementFrame\UI-Achievement-Parchment]])
     
     -- Low alpha backgrounds (for subtle effects)
-    LSM:Register(LSM.MediaType.BACKGROUND, "Blizzard Low Alpha", [[Interface\TAXIFRAME\UI-TaxiFrame-BackgroundTile]])
+    RegisterGameFile(LSM.MediaType.BACKGROUND, "Blizzard Low Alpha", [[Interface\TAXIFRAME\UI-TaxiFrame-BackgroundTile]])
     
     -- ===================================================================
     -- YOUR CUSTOM TEXTURES GO HERE
